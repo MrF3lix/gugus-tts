@@ -13,7 +13,7 @@ defaults:
   - override /model/text_encoder: byt5
 
 run_name: em_be
-tags: ["be", "energy_matching", "latent", "cross_attention"]
+tags: ["be", "energy_matching", "latent", "cross_attention", "byt5"]
 
 monitor: val/ot
 
