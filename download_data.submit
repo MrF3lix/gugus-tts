@@ -52,17 +52,20 @@ command -v unzip >/dev/null 2>&1 || { echo "ERROR: unzip not found on $(hostname
 mkdir -p "${DATA_DIR}"
 ARCHIVE="${DATA_DIR}/.${DATA_NAME}.download"
 
-echo "[$(date +%T)] downloading ${DATA_NAME} on $(hostname) -> ${ARCHIVE}"
-curl --location --fail --retry 10 --retry-delay 30 --retry-all-errors \
-    --no-progress-meter --output "${ARCHIVE}" "${DATA_URL}"
-echo "[$(date +%T)] downloaded $(du -h "${ARCHIVE}" | cut -f1)"
+if [ -f "${ARCHIVE}" ] && unzip -tq "${ARCHIVE}" >/dev/null 2>&1; then
+    echo "[$(date +%T)] reusing ${ARCHIVE} ($(du -h "${ARCHIVE}" | cut -f1)) from an earlier run"
+else
+    echo "[$(date +%T)] downloading ${DATA_NAME} on $(hostname) -> ${ARCHIVE}"
+    curl --location --fail --retry 10 --retry-delay 30 --retry-all-errors \
+        --no-progress-meter --output "${ARCHIVE}" "${DATA_URL}"
+    echo "[$(date +%T)] downloaded $(du -h "${ARCHIVE}" | cut -f1)"
+fi
 
 rm -rf "${TARGET}"
 mkdir -p "${TARGET}"
 if unzip -tq "${ARCHIVE}" >/dev/null 2>&1; then
     echo "[$(date +%T)] extracting into ${TARGET}"
-    # Dropbox folder zips contain a "/" entry; unzip warns about it and exits 1, which is fine.
-    unzip -q -o "${ARCHIVE}" -d "${TARGET}" || [ $? -eq 1 ]
+    unzip -q -o "${ARCHIVE}" -x / -d "${TARGET}"
     [ "${KEEP_ZIP:-0}" = "1" ] || rm -f "${ARCHIVE}"
 else
     # A shared single file arrives as-is; keep its name from the link.
