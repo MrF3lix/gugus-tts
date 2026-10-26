@@ -5,6 +5,7 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --nodes=1
 #SBATCH --mem=4G
+#SBATCH --partition=cpu
 #SBATCH --account=cai_nlp
 #SBATCH --mail-user=saaf@zhaw.ch
 #SBATCH --mail-type=END,FAIL
